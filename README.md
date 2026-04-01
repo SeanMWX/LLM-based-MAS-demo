@@ -37,7 +37,9 @@ LLM-based-MAS-demo/
 |   |-- README.md
 |   |-- __init__.py
 |   |-- demo.py
-|   \-- benchmark_cases.json
+|   |-- benchmark_cases.json
+|   \-- seeds/
+|-- tests/
 |-- mas_benchmark_demo.py
 |-- environment.yml
 |-- requirements.txt
@@ -48,7 +50,7 @@ LLM-based-MAS-demo/
 
 `framework/core.py` holds the shared five-layer engine, scenario loading, and CLI plumbing.
 `mas_benchmark_demo.py` is kept as a compatibility entrypoint and forwards to `coding_agent/demo.py`.
-The active scenario file for this demo is `coding_agent/benchmark_cases.json`.
+The active scenario file for this demo is `coding_agent/benchmark_cases.json`; scenarios now live under each demo directory rather than the repository root.
 
 ## First Demo: `coding_agent`
 
@@ -60,6 +62,52 @@ python .\coding_agent\demo.py list
 python .\coding_agent\demo.py render --case simple_feature_python
 python .\coding_agent\demo.py run --case simple_feature_python
 ```
+
+To evaluate a seeded hypothetical proposal instead of starting from `planner`, pass a seed file:
+
+```powershell
+conda activate py12langgraph
+python .\coding_agent\demo.py run `
+  --case simple_feature_python `
+  --seed-file .\coding_agent\seeds\reviewer_hypothesis.json
+```
+
+This mode lets you pre-populate prior role artifacts, hypothetical diffs or claims, seeded test results, and a `start_role` such as `tester` or `reviewer`.
+
+To let the demo inspect a real repository in read-only mode and have the `tester` run a real command, pass `--repo-path` and `--test-command`:
+
+```powershell
+conda activate py12langgraph
+python .\coding_agent\demo.py run `
+  --case simple_feature_python `
+  --repo-path . `
+  --test-command "python -m pytest tests -q" `
+  --test-timeout 120
+```
+
+In this mode the framework:
+
+- collects a lightweight repository snapshot during `perception`
+- reads a small set of real text files and injects numbered excerpts into the agent brief
+- lets live-model roles request extra read-only context with `search` and `read_file` tool requests
+- narrows available tools to `search`, `read_file`, and `run_tests`
+- executes the real test command during the `tester` step
+- stores the command result in `test_run_result` and injects it into the reviewer brief
+
+For live model calls in read-only mode, the framework also supports an internal tool-request loop. A role can ask for more context by returning JSON such as:
+
+```json
+{"tool_request":{"tool":"search","query":"normalize_slug","top_k":5}}
+```
+
+or:
+
+```json
+{"tool_request":{"tool":"read_file","path":"utils/helpers.py"}}
+```
+
+The framework executes the request, appends the result to the brief, and asks the role again. Executed tool rounds are exposed in `tool_events`.
+At the workflow level, the framework also emits a higher-level `action_trace` plus human-readable `action_trace_text`.
 
 If an API key is configured, you can switch from deterministic simulation to live model calls:
 
@@ -112,7 +160,11 @@ python -m pytest tests -q
 What is covered right now:
 
 - simulation-mode graph execution for all coding-agent scenarios
+- read-only repository snapshot collection and real test-command execution
+- seeded proposal and reviewer/tester-start evaluation
 - structured output normalization and fallback parsing
+- snapshot coverage for stable `role_artifacts`
+- mocked provider coverage for `thinking + text`, invalid JSON, and truncated JSON
 - environment loading behavior for `.env`
 - communication-layer handoff narrowing
 
@@ -132,7 +184,8 @@ Each demo should be self-contained in its own top-level directory. The minimum r
 <demo_name>/
 |-- README.md
 |-- demo.py
-\-- benchmark_cases.json
+|-- benchmark_cases.json
+\-- seeds/   # optional
 ```
 
 Recommended responsibilities:

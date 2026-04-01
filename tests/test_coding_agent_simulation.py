@@ -31,6 +31,20 @@ def test_simple_feature_case_completes_with_all_roles():
     assert state["shared_memory"]["role_outputs"] == state["role_outputs"]
     assert state["shared_memory"]["role_artifacts"] == state["role_artifacts"]
     assert "Scenario: Add a small pure helper function" in state["final_report"]
+    assert state["action_trace"][0]["event"] == "workflow_started"
+    assert state["action_trace"][-1]["event"] == "workflow_completed"
+    selected_roles = [
+        event["role"]
+        for event in state["action_trace"]
+        if event["event"] == "role_selected"
+    ]
+    completed_roles = [
+        event["role"]
+        for event in state["action_trace"]
+        if event["event"] == "role_completed"
+    ]
+    assert selected_roles == ROLE_ORDER
+    assert completed_roles == ROLE_ORDER
 
 
 def test_all_scenarios_complete_in_simulation():

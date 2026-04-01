@@ -23,6 +23,7 @@ The role order is:
 
 - `demo.py`: demo-specific configuration on top of the shared `framework/` engine
 - `benchmark_cases.json`: the local scenarios for this demo
+- `seeds/`: optional seeded proposal artifacts for reviewer/tester-start evaluation
 
 ## Run
 
@@ -32,6 +33,56 @@ python .\coding_agent\demo.py list
 python .\coding_agent\demo.py render --case simple_feature_python
 python .\coding_agent\demo.py run --case simple_feature_python
 ```
+
+To start from a seeded reviewer/tester-style evaluation instead of `planner`, use:
+
+```powershell
+conda activate py12langgraph
+python .\coding_agent\demo.py run `
+  --case simple_feature_python `
+  --seed-file .\coding_agent\seeds\reviewer_hypothesis.json
+```
+
+The seed file can inject:
+
+- `start_role`
+- prior `seed_role_artifacts` or `seed_role_outputs`
+- seeded `test_run_result`
+- extra `seed_context` such as a hypothetical diff or proposal summary
+
+With a real repository in read-only mode plus real test execution:
+
+```powershell
+conda activate py12langgraph
+python .\coding_agent\demo.py run `
+  --case simple_feature_python `
+  --repo-path . `
+  --test-command "python -m pytest tests -q" `
+  --test-timeout 120
+```
+
+This does not allow file writes. It only:
+
+- snapshots the target repo during `perception`
+- reads a small set of real text files and includes numbered excerpts in the brief
+- allows live-model roles to ask for extra `search` or `read_file` context before returning final JSON
+- exposes `search`, `read_file`, and `run_tests`
+- runs the configured command during the `tester` step
+
+When `--invoke` is used together with `--repo-path`, a role may request more context with JSON like:
+
+```json
+{"tool_request":{"tool":"search","query":"normalize_slug","top_k":5}}
+```
+
+or:
+
+```json
+{"tool_request":{"tool":"read_file","path":"utils/helpers.py"}}
+```
+
+The framework appends the result to the brief and asks the role again. These rounds are recorded in `tool_events`.
+The overall workflow also records a higher-level `action_trace` and `action_trace_text`.
 
 With API keys:
 

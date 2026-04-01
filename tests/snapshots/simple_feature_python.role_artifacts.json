@@ -1,0 +1,64 @@
+{
+  "planner": {
+    "plan": [
+      "Inspect the relevant module and test layout.",
+      "Implement the smallest change that satisfies the task.",
+      "Add or update focused tests.",
+      "Run the relevant test subset."
+    ],
+    "success_criteria": [
+      "Lowercase alphabetic characters",
+      "Trim surrounding whitespace",
+      "Collapse internal whitespace to one hyphen",
+      "Tests cover mixed case and repeated whitespace"
+    ],
+    "risks": [
+      "Keep the implementation pure and small",
+      "Do not add unrelated helpers"
+    ],
+    "handoff_to_coder": [
+      "Prefer a minimal patch.",
+      "Avoid unrelated refactors."
+    ]
+  },
+  "coder": {
+    "patch_summary": [
+      "Make a minimal targeted code change.",
+      "Add or update focused unit tests.",
+      "Keep public API and unrelated logic unchanged."
+    ],
+    "likely_files": [
+      "source module under change",
+      "matching test module"
+    ],
+    "constraints": [
+      "Keep the implementation pure and small",
+      "Do not add unrelated helpers"
+    ]
+  },
+  "tester": {
+    "verification_plan": [
+      "Run the focused unit tests for the touched module.",
+      "Re-run relevant regression coverage.",
+      "Confirm no unrelated cases regress."
+    ],
+    "failure_checks": [
+      "Lowercase alphabetic characters",
+      "Trim surrounding whitespace",
+      "Collapse internal whitespace to one hyphen",
+      "Tests cover mixed case and repeated whitespace"
+    ],
+    "verdict": "Pass"
+  },
+  "reviewer": {
+    "review_summary": [
+      "Patch scope appears minimal.",
+      "Acceptance criteria are addressed.",
+      "Testing strategy is proportionate to the change."
+    ],
+    "risks": [
+      "Real tool-backed verification is still needed before merging."
+    ],
+    "decision": "Approve"
+  }
+}

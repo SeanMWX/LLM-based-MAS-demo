@@ -11,6 +11,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from framework import FiveLayerDemo, FiveLayerState
+from framework.core import extract_json_object
 
 CASES_PATH = ROOT / "benchmark_cases.json"
 ROLE_ORDER = ["planner", "coder", "tester", "reviewer"]
@@ -186,31 +187,6 @@ def normalize_decision(value: Any) -> str:
     if "approve" in text:
         return "Approve"
     return "Needs verification"
-
-
-def extract_json_object(raw_output: str) -> dict[str, Any] | None:
-    candidates = [raw_output.strip()]
-    fence_match = re.search(r"```(?:json)?\s*(.*?)```", raw_output, re.DOTALL | re.IGNORECASE)
-    if fence_match:
-        candidates.append(fence_match.group(1).strip())
-
-    start = raw_output.find("{")
-    end = raw_output.rfind("}")
-    if start != -1 and end != -1 and end > start:
-        candidates.append(raw_output[start : end + 1].strip())
-
-    seen: set[str] = set()
-    for candidate in candidates:
-        if not candidate or candidate in seen:
-            continue
-        seen.add(candidate)
-        try:
-            data = json.loads(candidate)
-        except json.JSONDecodeError:
-            continue
-        if isinstance(data, dict):
-            return data
-    return None
 
 
 def extract_sectioned_fields(role: str, raw_output: str) -> dict[str, str]:
