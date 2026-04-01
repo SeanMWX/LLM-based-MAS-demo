@@ -1,0 +1,332 @@
+\section{Proposal}
+\subsection{Background \& Motivation}
+Large Language Model (LLM)–based multi-agent systems (MAS) are rapidly becoming a dominant paradigm for complex tasks such as automated software development, collaborative robotics, scientific discovery, and multi-step planning (e.g., LangGraph, AutoGen, and MCP-based ecosystems). While these systems demonstrate impressive capabilities, they also introduce new attack surfaces that do not exist in single-agent LLM settings.
+
+Attacks in MAS can propagate across agents and system layers. For example, an adversary may begin by manipulating the perception layer of a single agent (e.g., adversarial input), causing that agent to develop a corrupted internal state. The compromised agent may then behave incorrectly or maliciously during subsequent collaboration, sending manipulated messages through the communication layer, disrupting the reasoning (inference-time) layer of other agents, and ultimately contaminating the team-level coordination structures. Such cascading failures highlight that MAS expose multiple interconnected attack surfaces—perception, communication, reasoning, policy, and coordination—which can amplify the impact of even small adversarial perturbations.
+
+To systematically understand the security risks inherent in LLM-based MAS, a rigorous and comprehensive benchmark is required. However, no unified security benchmark currently exists to evaluate how MAS behave under adversarial conditions or to compare vulnerabilities across models and frameworks. Therefore, this work aims to close this gap by:
+
+\begin{enumerate}
+\item \textbf{Formalizing a modern architectural framework} for LLM-based multi-agent systems, showing the fundamental layers through which attacks can occur;
+\item \textbf{Defining a structured and complete threat taxonomy} that maps adversarial behaviors to these architectural layers;
+\item \textbf{Developing a comprehensive security benchmark suite} that evaluates MAS robustness across state-of-the-art LLMs and widely used multi-agent execution frameworks.
+\end{enumerate}
+
+\subsection{Research Questions}
+To ensure a coherent and rigorous research agenda, this project is guided by the following core research questions:
+
+\begin{enumerate}
+    \item What is the minimal and complete architectural decomposition that captures all security-relevant components of LLM-based multi-agent systems?
+    \item How can the resulting architectural layers be used to systematically categorize the attack surfaces of MAS?
+    \item How do state-of-the-art LLM agents and multi-agent execution frameworks behave under each category of attack?
+    \item Which layers of MAS exhibit the greatest vulnerability, and what patterns of cascading or cross-layer failures emerge in adversarial settings?
+\end{enumerate}
+
+\subsection{Proposed Methodology}
+\subsubsection{Formalizing a Minimal and Complete MAS Architecture}
+
+We begin by constructing a \textbf{minimal and complete architectural decomposition} for LLM-based multi-agent systems (MAS). We propose a five-layer structure consisting of the \textit{perception}, \textit{inference}, \textit{communication}, \textit{behavior}, and \textit{coordination} layers. Figure~\ref{fig:intro_fig} illustrates a simple MAS composed of two agents tasked with: \textit{if either robot observes a panda, it should inform the other and report the sighting to the zoo}.  
+\begin{itemize}
+    \item The \textbf{perception layer} provides the agents' interface to environmental inputs.
+    \item The \textbf{inference layer} governs internal reasoning and planning.
+    \item The \textbf{communication layer} provides channels for agents to exchange information.
+    \item The \textbf{behavior layer} governs decision-making and action execution based on inferred results.
+    \item The \textbf{coordination layer} serves as shared memory for storing tasks, states, and other relevant data.
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\linewidth]{figs/llm_based_mas_threat.png}
+    \caption{A five-layer architecture for LLM-based MAS. Example task: if either robot A or robot B observes a panda, it should notify the other agent and report the sighting to the zoo. The red lightning icons indicate potential attack surfaces.}
+    \label{fig:intro_fig}
+\end{figure}
+
+Nevertheless, each layer remains vulnerable to contamination or manipulation by malicious adversaries, creating multiple potential attack surfaces within the system.
+
+\subsubsection{Categorizing Attack Surfaces via Architectural Layers}
+
+For each architectural layer, we define a corresponding set of \textbf{trust assumptions} and \textbf{attack scenarios} that characterize the adversary’s capabilities and the system's expected guarantees. This enables a principled and fine-grained taxonomy of attack surfaces across MAS. We illustrate this process using the perception layer.
+
+\textbf{Trust Assumptions.}
+
+\begin{enumerate}
+    \item \textbf{Trusted LLM reasoning.} The LLM and its internal inference mechanisms are trusted; the adversary cannot modify model weights or alter internal reasoning procedures.
+    \item \textbf{Untrusted perceptual content.} The perception pipeline (e.g., sensors, retrieval modules, environment interfaces) operates normally but cannot be trusted for content integrity.
+    \item \textbf{Honest remaining layers.} Other layers, such as communication, behavior, and coordination, behave honestly.
+\end{enumerate}
+
+\textbf{Attack Scenarios.}
+Given these assumptions, the adversary attempts to corrupt the agent’s understanding of the environment by manipulating perceptual inputs. For instance, the adversary may perform an adversarial attack on the visual or textual input such that the agent misclassifies a panda as a gibbon, thereby causing incorrect reasoning and downstream actions.
+
+\subsubsection{SOTA Models and Frameworks}
+
+To understand how modern systems behave under adversarial threats, we instantiate MAS using state-of-the-art frontier LLMs. Table~\ref{tab:models} summarizes the models used in our benchmark. We also evaluate across widely used multi-agent execution frameworks including \textit{AutoGen 2.0}, \textit{LangGraph}, and \textit{OpenAI MCP}, which represent the dominant paradigms for building LLM-based multi-agent workflows.
+\begin{table}[htbp]
+\centering
+\caption{State-of-the-art LLM models included in our benchmark evaluation.}
+\label{tab:models}
+\resizebox{0.9\textwidth}{!}{%
+\begin{tabular}{l|ll}
+\hline
+\multicolumn{1}{c|}{\textbf{Organization}} & \multicolumn{1}{c}{\textbf{Model}} & \multicolumn{1}{c}{\textbf{Notes}} \\ \hline
+\textbf{OpenAI}      & GPT-5.1, GPT-5.1-Reasoning         & strongest reasoning agents         \\
+\textbf{Anthropic}   & Claude 3.7 Opus, Claude 3.7 Sonnet & exceptional safety + reasoning     \\
+\textbf{Google DeepMind} & Gemini 2.0 Ultra, Gemini 2.0 Flash & top multi-modal + fast inference   \\
+\textbf{Meta}        & LLaMA 4 90B, LLaMA 3.1 70B         & strongest open-source models       \\
+\textbf{Alibaba}     & Qwen 3.0 110B, Qwen 2.5 72B        & top-tier open-source reasoning     \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\subsubsection{Evaluation Metrics}
+
+To systematically evaluate MAS behavior under attack, we employ metrics aligned with each architectural layer, capturing failures in perception, communication, reasoning, behavior, coordination, and global system performance. Table~\ref{tab:metrics} summarizes these metrics.
+
+\begin{table}[htbp]
+\centering
+\caption{Evaluation metrics aligned with the five MAS attack layers.}
+\label{tab:metrics}
+\resizebox{0.82\textwidth}{!}{%
+\begin{tabular}{l|p{0.32\textwidth}|p{0.45\textwidth}}
+\hline
+\textbf{Attack Layer} & \textbf{Metric} & \textbf{Description} \\
+\hline
+
+\textbf{Perception} 
+& State Estimation Divergence (SED) 
+& Difference between clean vs.\ adversarial agent observations or belief states. \\
+
+& Misinterpretation / Misclassification Rate 
+& Frequency of incorrect perception induced by adversarial inputs. \\
+\hline
+
+\textbf{Communication} 
+& Message Integrity Violation Rate 
+& Rate at which A2A messages are modified, injected, or corrupted. \\
+
+& Protocol Deviation Rate 
+& Frequency of agents deviating from communication protocol due to attack. \\
+\hline
+
+\textbf{Inference (Reasoning-Time)} 
+& Reasoning Drift Score 
+& Divergence of chain-of-thought or reasoning trajectory from the expected path. \\
+
+& Wrong Tool-Call Rate 
+& Percentage of incorrect or unsafe tool invocations triggered by adversarial manipulation. \\
+\hline
+
+\textbf{Behavior (Policy)} 
+& Deception Detectability 
+& Ability of MAS to detect malicious or deceptive agent behavior. \\
+
+& Manipulation Gain / Negotiation Regret 
+& Advantage gained by a deceptive agent compared to honest collaboration. \\
+\hline
+
+\textbf{Coordination} 
+& Plan / Shared Memory Divergence 
+& Deviation between clean and corrupted team-level plans or shared artifacts. \\
+
+& Cascade Failure Count 
+& Number of downstream failures triggered by a single point of corruption. \\
+\hline
+
+\textbf{System-Level (Global)} 
+& Task Completion Rate Under Attack 
+& Probability that MAS successfully completes the task in adversarial conditions. \\
+
+& Robustness Gap 
+& Degradation between clean vs.\ adversarial performance across tasks. \\
+\hline
+
+\end{tabular}
+}
+\end{table}
+
+\subsection{Expected Contributions}
+
+\begin{enumerate}
+    \item A unified architectural framework describing all key components of modern LLM-based MAS.
+    \item A complete and principled taxonomy of MAS security threats grounded in this architecture.
+    \item The first security benchmark suite evaluating five categories of attacks across canonical tasks and variants.
+    \item An empirical comparison of vulnerabilities across state-of-the-art LLMs (e.g., GPT-5.1, Claude 3.7, Gemini 2.0, LLaMA 4, Qwen 3.0) and major multi-agent frameworks.
+    \item Insights and recommendations for designing more secure multi-agent systems.
+\end{enumerate}
+
+\subsection{Timeline}
+
+\begin{tabular}{ll}
+\textbf{Month 1} & Finalize MAS architecture and taxonomy \\
+\textbf{Month 2} & Implement perception and communication tasks \\
+\textbf{Month 3} & Implement behavioral and inference-time tasks \\
+\textbf{Month 4} & Implement coordination tasks; build attack library \\
+\textbf{Month 5} & Conduct model evaluations and analysis \\
+\textbf{Month 6} & Prepare manuscript and release benchmark repository
+\end{tabular}
+
+\subsection{Conclusion}
+
+Overall, this project will deliver the first systematic foundation for studying the security of LLM-based multi-agent systems, establish a unified evaluation benchmark, and provide actionable insights for building more trustworthy and robust agentic AI.
+
+
+% \subsection{Background \& Motivation}
+% Large Language Model (LLM)–based multi-agent systems (MAS) are rapidly becoming a dominant paradigm for complex tasks such as automated software development, collaborative robotics, scientific discovery, and multi-step planning (e.g., LangGraph, AutoGen, MCP-based ecosystems).
+% While these systems demonstrate strong performance, they also exhibit new attack surfaces that do not appear in single-agent LLMs:
+% \begin{itemize}
+%     \item Agents exchange messages (communication attacks)
+%     \item Agents coordinate via shared artifacts (coordination attacks)
+%     \item Agents depend on multi-step reasoning (inference-time attacks)
+%     \item Agents may behave strategically or deceptively (behavioral attacks)
+%     \item Agents rely on perceptual inputs (perception attacks)
+% \end{itemize}
+
+% Currently, no unified security benchmark exists to systematically evaluate how these systems fail under adversarial conditions. This creates a critical gap, where \textbf{AI agents are being deployed without understanding their multi-agent failure modes.} This proposal aims to close this gap.
+
+% \subsection{Research Objective}
+% The overarching objective is to establish MA-SecBench as \textbf{a standardized and reproducible evaluation framework} for MAS security. The project pursues the following goals: 
+% \begin{enumerate}
+%     \item Develop a unified, principled threat taxonomy capturing all fundamental attack surfaces in multi-agent LLM systems.
+%     \item Design a suite of canonical benchmark tasks that concretely instantiate each category of threat.
+%     \item Construct controlled variants for testing generalization across different attack intensities, configurations, and environments.
+%     \item Implement an adversarial attack library including prompt injections, CoT perturbations, shared-memory poisoning, and cross-agent manipulation.
+%     \item Evaluate 2025 frontier LLM models (GPT-5.1, Claude 3.7, Gemini 2.0, LLaMA-4, Qwen-3.0) across major MAS frameworks.
+%     \item Release an open-source benchmark with documentation, metrics, and reproducible experimental pipelines.
+% \end{enumerate}
+% This project will provide the community with a rigorous foundation for studying agent-level and system-level robustness issues, enabling safer future MAS deployments.
+
+% \subsection{Unified MAS Security Taxonomy}
+% We propose a five-layer decomposition of MAS attack surfaces, grounded in the functional architecture of modern agentic systems. 
+% \begin{enumerate}
+%     \item Perception Attacks:
+%     Manipulating sensory/input signals (images, text, structured data).
+%     Example: adversarial patch misleads multi-agent navigation.
+%     \item Communication Attacks:
+%     Attacking messages between agents (A2A/MCP).
+%     Example: malicious JSON containing hidden prompt injection.
+%     \item Behavioral Attacks:
+%     Malicious or deceptive policies within an agent.
+%     Example: negotiation agent hides true intent across rounds.
+%     \item Coordination Attacks:
+%     Corrupting shared artifacts required for team-level coordination.
+%     Example: poisoning shared memory in CI/CD pipelines.
+%     \item Inference-Time Attacks:
+%     Manipulating internal reasoning (CoT, tool planning).
+%     Example: CoT contamination causing faulty tool invocation.
+% \end{enumerate}
+% These represent the minimal and complete set of attack surfaces in LLM-based multi-agent systems.
+
+% \subsection{Benchmark Design}
+% For each attack category, we will develop:
+% \begin{itemize}
+%     \item Canonical Task (1 per category)
+%     \begin{itemize}
+%         \item A standardized scenario capturing that attack’s essential pattern
+%         \item Fully reproducible environment
+%         \item Attack + evaluation metrics
+%     \end{itemize}
+%     \item Variants (2–3 per category)
+%     \begin{itemize}
+%         \item Diverse subtasks
+%         \item Different attack intensities
+%         \item Different agent roles or environmental configurations
+%     \end{itemize}
+% \end{itemize}
+% This results in a total of 15 benchmark tasks.
+
+% \subsection{Proposed Benchmark Tasks}
+% \begin{enumerate}
+%     \item Perception
+%     \begin{itemize}
+%         \item Canonical: Adversarial visual navigation in multi-robot environment
+%         \item Variants: digital patch, physical patch, adversarial caption
+%     \end{itemize}
+%     \item Communication
+%     \begin{itemize}
+%         \item Canonical: A2A prompt injection in software development pipeline
+%         \item Variants: JSON poisoning, role hijack, tool-call argument injection
+%     \end{itemize}
+%     \item Behavioral
+%     \begin{itemize}
+%         \item Canonical: Multi-round negotiation with deceptive agent
+%         \item Variants: hidden preference, collusion, strategic misreporting
+%     \end{itemize}
+%     \item Coordination
+%     \begin{itemize}
+%         \item Canonical: Shared memory poisoning in CI/CD agent workflow
+%         \item Variants: task-graph corruption, resource-map pollution, role table swap
+%     \end{itemize}
+%     \item Inference-Time
+%     \begin{itemize}
+%         \item Canonical: Tool-use sabotage via CoT contamination
+%         \item Variants: CoT rewriting, intermediate memory corruption, planner hijack
+%     \end{itemize}
+% \end{enumerate}
+
+% \subsection{Evaluation Methodology}
+% \textbf{Model to be Evaluated}
+% \begin{itemize}
+%     \item GPT-5.1, GPT-5.1-Reasoning
+%     \item Claude 3.7 Opus, Claude 3.7 Sonnet
+%     \item Gemini 2.0 Ultra, Gemini 2.0 Flash
+%     \item LLaMA 4 90B, LLaMA 3.1 70B
+%     \item Qwen 3.0 110B, Qwen 2.5 72B
+% \end{itemize}
+% \textbf{Metrics}
+% \begin{itemize}
+%     \item Attack Success Rate (ASR)
+%     \item Wrong tool-call rate
+%     \item Coordination failure rate
+%     \item Deception detectability
+%     \item Task completion rate under attack
+%     \item Robustness gap between normal vs. adversarial execution
+% \end{itemize}
+% \textbf{Baselines}
+% \begin{itemize}
+%     \item AutoGen 2.0 multi-agent pipelines
+%     \item LangGraph agent workflows
+%     \item OpenAI MCP orchestrated agents
+%     \item Lightweight planner+tool agents (ReAct/ToT)
+% \end{itemize}
+
+% \subsection{Expected Contribution}
+% \begin{enumerate}
+%     \item First unified MAS security taxonomy for LLM agents
+%     \item Fifteen-task benchmark covering five key attack surfaces
+%     \item Open-source attack library for reproducible research
+%     \item Large-scale evaluation across 2025’s strongest frontier models
+%     \item Actionable insights for designing secure multi-agent systems
+%     \item Potential to become the standard benchmark for MAS safety
+% \end{enumerate}
+
+% \subsection{Timeline (3–6 months)}
+% \begin{enumerate}
+%     \item 1st month: Finalize threat taxonomy; implement perception tasks
+%     \item 2nd month: Build communication \& behavioral tasks
+%     \item 3rd month: Implement coordination \& inference tasks
+%     \item 4th month: Develop attack library; benchmark infrastructure
+%     \item 5th month: Run SOTA model evaluations
+%     \item 6th month: Paper writing (NeurIPS/ICLR) + open-source release
+% \end{enumerate}
+
+% \subsection{Team Fit \& Collaboration}
+% This project is ideal for collaboration across your group:
+% \begin{itemize}
+%     \item Xinhai — security / adversarial attacks / MAS theory
+%     \item CV collaborator — perception attacks, visual tasks
+%     \item Math/SVM collaborator — adversarial optimization \& robustness theory
+% \end{itemize}
+
+% \subsection{Impact}
+% MA-SecBench will help shape the emerging field of multi-agent AI security.
+% The benchmark can become:
+% \begin{itemize}
+%     \item A community-wide standard
+%     \item A testbed for future secure multi-agent protocols
+%     \item A foundation for AGI safety evaluations
+%     \item A reference for both academia and industry
+% \end{itemize}
+% This fills an urgent gap in evaluating the robustness of agentic AI systems.
+
+
+
