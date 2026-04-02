@@ -15,6 +15,15 @@ The first demo now lives in `coding_agent/`. It models a simple coding workflow 
 - `tester`
 - `reviewer`
 
+There is now a second demo in `ict_pipeline/`. It models a simple enterprise ICT ticket flow with four agents:
+
+- `intake_agent`
+- `triage_agent`
+- `executor_agent`
+- `audit_agent`
+
+The current `ict_pipeline` version is explicitly `Phase 1: pure ticket system / queue`.
+
 ## Environment
 
 Use the Conda environment `py12langgraph`.
@@ -30,9 +39,20 @@ The framework auto-loads the repo-root `.env` file when it starts.
 
 ```text
 LLM-based-MAS-demo/
+|-- .env.example
+|-- .gitignore
 |-- framework/
 |   |-- __init__.py
-|   \-- core.py
+|   |-- core.py
+|   |-- runtime.py
+|   |-- workflow.py
+|   |-- cli.py
+|   |-- repo_tools.py
+|   |-- seeding.py
+|   |-- providers.py
+|   |-- text_utils.py
+|   |-- env.py
+|   \-- models.py
 |-- coding_agent/
 |   |-- README.md
 |   |-- __init__.py
@@ -48,9 +68,26 @@ LLM-based-MAS-demo/
 \-- mas_target.tex
 ```
 
-`framework/core.py` holds the shared five-layer engine, scenario loading, and CLI plumbing.
+`framework/runtime.py` is now a thin facade over the shared framework surface.
+`framework/workflow.py` holds graph-node behavior, runtime transitions, and scenario execution.
+`framework/cli.py` holds CLI parsing and scenario rendering helpers.
+`framework/core.py` is kept as a narrow compatibility layer for legacy imports used by existing demos and tests.
 `mas_benchmark_demo.py` is kept as a compatibility entrypoint and forwards to `coding_agent/demo.py`.
 The active scenario file for this demo is `coding_agent/benchmark_cases.json`; scenarios now live under each demo directory rather than the repository root.
+The tracked `.vscode/` settings file was intentionally removed; local IDE settings are now treated as user-local and ignored by Git.
+
+Framework rule:
+- `framework/` is the shared five-layer abstraction and runtime.
+- domain-specific behavior belongs in implementation folders such as `coding_agent/`
+- future demos should subclass `FiveLayerDemo` and override hooks instead of adding one-off domain logic to framework internals
+
+Current `FiveLayerDemo` extension hooks include:
+- `resolve_access_mode(...)`
+- `resolve_available_tools(...)`
+- `extend_perception_observations(...)`
+- `extend_shared_memory(...)`
+- `extend_brief_sections(...)`
+- `postprocess_role_execution(...)`
 
 ## First Demo: `coding_agent`
 
@@ -94,6 +131,8 @@ In this mode the framework:
 - executes the real test command during the `tester` step
 - stores the command result in `test_run_result` and injects it into the reviewer brief
 
+Those coding-specific behaviors are implemented by the `coding_agent` demo class, not by the shared framework core.
+
 For live model calls in read-only mode, the framework also supports an internal tool-request loop. A role can ask for more context by returning JSON such as:
 
 ```json
@@ -118,7 +157,7 @@ python .\coding_agent\demo.py run --case all --invoke
 
 ### MiniMax
 
-`framework/core.py` now supports MiniMax through the official Anthropic-compatible SDK flow documented by MiniMax.
+`framework/providers.py` now supports MiniMax through the official Anthropic-compatible SDK flow documented by MiniMax.
 The simplest local setup is:
 
 ```powershell
@@ -126,6 +165,15 @@ conda activate py12langgraph
 copy .env.example .env
 # then edit .env and fill in MINIMAX_API_KEY
 python .\coding_agent\demo.py run --case simple_feature_python --invoke
+```
+
+The current repository expects MiniMax settings in `.env`, for example:
+
+```env
+MINIMAX_API_KEY=your_key
+MINIMAX_BASE_URL=https://api.minimaxi.com/anthropic
+MINIMAX_MODEL=MiniMax-M2.5
+MINIMAX_MAX_TOKENS=1024
 ```
 
 Optional:
@@ -148,6 +196,19 @@ Compatibility entrypoint:
 python .\mas_benchmark_demo.py list
 ```
 
+## Second Demo: `ict_pipeline`
+
+Run the ICT pipeline demo with:
+
+```powershell
+conda activate py12langgraph
+python .\ict_pipeline\demo.py list
+python .\ict_pipeline\demo.py render --case vpn_access_reset
+python .\ict_pipeline\demo.py run --case vpn_access_reset
+```
+
+This demo is intentionally non-coding. It uses the same five-layer runtime to model intake, triage, execution, and audit for enterprise ICT ticket workflows.
+
 ## Testing
 
 Run the offline test suite with:
@@ -160,6 +221,7 @@ python -m pytest tests -q
 What is covered right now:
 
 - simulation-mode graph execution for all coding-agent scenarios
+- simulation-mode graph execution for all ICT pipeline scenarios
 - read-only repository snapshot collection and real test-command execution
 - seeded proposal and reviewer/tester-start evaluation
 - structured output normalization and fallback parsing
@@ -191,7 +253,7 @@ Each demo should be self-contained in its own top-level directory. The minimum r
 Recommended responsibilities:
 
 - `README.md`: what this demo studies, which agents it uses, and how to run it
-- `demo.py`: demo-specific configuration that imports the shared engine from `framework/`
+- `demo.py`: demo-specific implementation that subclasses `FiveLayerDemo` and owns domain hooks, prompts, schemas, and simulation logic
 - `benchmark_cases.json`: the scenarios for that demo
 
 ## How To Add A New Demo
@@ -200,10 +262,12 @@ After `coding_agent` is stable, create a new demo with the same pattern:
 
 1. Create a new folder such as `negotiation_agent/` or `memory_agent/`.
 2. Copy the three baseline files from `coding_agent/`: `README.md`, `demo.py`, and `benchmark_cases.json`.
-3. In the new `demo.py`, keep the shared import from `framework/` and only replace the role list, prompts, and simulation logic.
-4. Update the scenario data in the local `benchmark_cases.json`.
-5. Keep the five-layer mapping explicit, even if the role set changes.
-6. Add the new demo to this root README with its run command.
+3. In the new `demo.py`, subclass `FiveLayerDemo` and keep domain-specific behavior in the demo folder.
+4. Use demo-level hooks for tool sets, environment actions, brief extras, and post-role execution behavior.
+5. Replace the role list, prompts, schemas, and simulation logic with the new domain's implementation.
+6. Update the scenario data in the local `benchmark_cases.json`.
+7. Keep the five-layer mapping explicit, even if the role set changes.
+8. Add the new demo to this root README with its run command.
 
 Minimal checklist for a new demo:
 
@@ -211,6 +275,7 @@ Minimal checklist for a new demo:
 - has a local `benchmark_cases.json`
 - exposes `list`, `render`, and `run`
 - imports the shared engine from `framework/`
+- keeps domain logic out of `framework/`
 - documents its agent roles
 - states how its graph maps to the five layers
 

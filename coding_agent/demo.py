@@ -318,8 +318,136 @@ def simulate_role_output(role: str, state: FiveLayerState) -> str:
 
     raise ValueError(f"Unsupported role: {role}")
 
+def augment_coding_tester_artifact(
+    artifact: dict[str, Any],
+    test_run_result: dict[str, Any],
+) -> dict[str, Any]:
+    updated = dict(artifact)
+    verification_plan = list(updated.get("verification_plan", []))
+    verification_plan.append(
+        f"Run real test command: {test_run_result['command']}"
+    )
+    updated["verification_plan"] = verification_plan
 
-APP = FiveLayerDemo(
+    failure_checks = list(updated.get("failure_checks", []))
+    if test_run_result["passed"]:
+        updated["verdict"] = "Pass"
+    elif test_run_result["timeout"]:
+        failure_checks.append("Real test command timed out.")
+        updated["verdict"] = "Fail"
+    else:
+        failure_checks.append(
+            f"Real test command failed with exit code {test_run_result['exit_code']}."
+        )
+        updated["verdict"] = "Fail"
+
+    if test_run_result.get("stderr_tail") and not test_run_result["passed"]:
+        first_line = test_run_result["stderr_tail"].splitlines()[0].strip()
+        if first_line:
+            failure_checks.append(f"stderr: {first_line}")
+
+    updated["failure_checks"] = failure_checks
+    return updated
+
+
+class CodingAgentDemo(FiveLayerDemo):
+    def resolve_access_mode(
+        self,
+        scenario,
+        repo_path: str | None,
+        effective_test_command: str | None,
+    ) -> str:
+        del scenario
+        return "read_only" if repo_path or effective_test_command else "synthetic"
+
+    def resolve_available_tools(
+        self,
+        scenario,
+        repo_access_mode: str,
+        repo_path: str | None,
+        effective_test_command: str | None,
+    ) -> list[str]:
+        del repo_path, effective_test_command
+        if repo_access_mode == "read_only":
+            return ["search", "read_file", "run_tests"]
+        return list(scenario.available_tools)
+
+    def extend_perception_observations(
+        self,
+        state: FiveLayerState,
+        repo_snapshot: dict[str, Any],
+        read_only_files: list[dict[str, str]],
+    ) -> list[str]:
+        del repo_snapshot, read_only_files
+        observations: list[str] = []
+        if state.get("test_command"):
+            observations.append(f"Configured test command: {state['test_command']}")
+        return observations
+
+    def extend_shared_memory(
+        self,
+        state: FiveLayerState,
+    ) -> dict[str, Any]:
+        shared: dict[str, Any] = {}
+        if state.get("test_command"):
+            shared["test_command"] = state["test_command"]
+        return shared
+
+    def extend_brief_sections(
+        self,
+        role: str,
+        state: FiveLayerState,
+    ) -> list[str]:
+        sections: list[str] = []
+        if role == "tester" and state.get("test_command"):
+            sections.append(f"Test command to execute:\n{state['test_command']}")
+
+        if (
+            "tester" in self.role_order
+            and role in self.role_order
+            and self.role_order.index(role) > self.role_order.index("tester")
+            and state.get("test_run_result")
+        ):
+            sections.append(
+                f"Latest test execution:\n{self.format_test_run_result(state['test_run_result'])}"
+            )
+        return sections
+
+    def postprocess_role_execution(
+        self,
+        role: str,
+        state: FiveLayerState,
+        artifact: dict[str, Any],
+        normalized_output: str,
+    ) -> tuple[dict[str, Any], str, dict[str, Any], list[dict[str, Any]]]:
+        if role != "tester" or not state.get("test_command"):
+            return artifact, normalized_output, {}, []
+
+        repo_path = self.resolve_repo_path(state.get("repo_path")) or REPO_ROOT
+        test_run_result = self.execute_test_command(
+            repo_path=repo_path,
+            test_command=state["test_command"],
+            timeout_sec=state.get("test_timeout_sec", 120),
+        )
+        artifact = augment_coding_tester_artifact(
+            artifact,
+            test_run_result,
+        )
+        normalized_output = json.dumps(artifact, indent=2, ensure_ascii=False)
+        trace_event = {
+            "event": "test_command_executed",
+            "role": role,
+            "summary": (
+                f"passed={test_run_result.get('passed', False)} "
+                f"timeout={test_run_result.get('timeout', False)} "
+                f"command={test_run_result.get('command', '')}"
+            ),
+            "result": test_run_result,
+        }
+        return artifact, normalized_output, {"test_run_result": test_run_result}, [trace_event]
+
+
+APP = CodingAgentDemo(
     name="coding_agent",
     description="First coding-agent demo in the five-layer MAS framework.",
     cases_path=CASES_PATH,

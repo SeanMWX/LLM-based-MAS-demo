@@ -21,7 +21,7 @@ The role order is:
 
 ## Files
 
-- `demo.py`: demo-specific configuration on top of the shared `framework/` engine
+- `demo.py`: demo-specific implementation that subclasses `FiveLayerDemo` and keeps coding-only behavior out of `framework/`
 - `benchmark_cases.json`: the local scenarios for this demo
 - `seeds/`: optional seeded proposal artifacts for reviewer/tester-start evaluation
 
@@ -99,6 +99,15 @@ copy .env.example .env
 python .\coding_agent\demo.py run --case simple_feature_python --invoke
 ```
 
+Current repository-side `.env` fields:
+
+```env
+MINIMAX_API_KEY=your_key
+MINIMAX_BASE_URL=https://api.minimaxi.com/anthropic
+MINIMAX_MODEL=MiniMax-M2.5
+MINIMAX_MAX_TOKENS=1024
+```
+
 ## Test
 
 ```powershell
@@ -109,3 +118,4 @@ python -m pytest tests -q
 ## Purpose
 
 This demo is the baseline scaffold for future MAS demos. It keeps the graph simple on purpose so the repository can grow by adding more demo directories instead of overloading one monolithic script.
+The shared rule is: `framework/` stays abstract; coding-specific tool, test, and review behavior stays in `coding_agent/`.

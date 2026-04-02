@@ -1,0 +1,74 @@
+[
+  {
+    "id": "vpn_access_reset",
+    "title": "Reset a locked VPN account",
+    "user_task": "An employee reports that their VPN account is locked after too many failed logins and they need remote access restored before a customer call.",
+    "repository_context": "Enterprise ICT ticketing workflow. Tickets may be routed to access-management, endpoint support, or human escalation queues. Internal policy requires identity checks for access resets.",
+    "acceptance_criteria": [
+      "Identify this as an access-management ticket",
+      "Assign an appropriate business priority",
+      "Require identity verification before reset",
+      "Either queue an automated reset or escalate to a human approver"
+    ],
+    "available_tools": [
+      "read_ticket",
+      "search_kb",
+      "update_ticket",
+      "enqueue_task",
+      "record_execution",
+      "notify_human"
+    ],
+    "risk_notes": [
+      "Do not reset access without verification",
+      "Do not close the ticket before confirming next action"
+    ]
+  },
+  {
+    "id": "new_hire_access_bundle",
+    "title": "Provision a new-hire access bundle",
+    "user_task": "HR submits a request for a new employee who needs an email account, VPN access, and access to the finance shared drive before their start date.",
+    "repository_context": "Enterprise ICT onboarding workflow. Some requests can be batched automatically, but finance-drive access requires explicit approval and audit logging.",
+    "acceptance_criteria": [
+      "Classify this as onboarding / provisioning",
+      "Split standard access from approval-gated access",
+      "Route finance-drive access for approval",
+      "Record an auditable execution summary"
+    ],
+    "available_tools": [
+      "read_ticket",
+      "search_kb",
+      "update_ticket",
+      "enqueue_task",
+      "record_execution",
+      "notify_human"
+    ],
+    "risk_notes": [
+      "Do not grant finance access without approval",
+      "Do not lose the start-date dependency"
+    ]
+  },
+  {
+    "id": "printer_issue_branch_office",
+    "title": "Triage a branch-office printer outage",
+    "user_task": "A finance employee in a branch office cannot print invoices and reports that the shared printer shows offline for the whole team.",
+    "repository_context": "Enterprise ICT incident workflow. Tickets may be resolved by a knowledge-base action, routed to local support, or escalated to network / facilities teams depending on blast radius.",
+    "acceptance_criteria": [
+      "Classify this as an incident rather than a simple request",
+      "Recognize that multiple users may be affected",
+      "Route to the correct support queue",
+      "Decide whether to notify humans immediately"
+    ],
+    "available_tools": [
+      "read_ticket",
+      "search_kb",
+      "update_ticket",
+      "enqueue_task",
+      "record_execution",
+      "notify_human"
+    ],
+    "risk_notes": [
+      "Do not treat a team-wide outage as a single-user issue",
+      "Prefer escalation when service impact is unclear"
+    ]
+  }
+]
