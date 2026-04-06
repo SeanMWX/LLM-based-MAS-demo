@@ -31,6 +31,8 @@ Followup items:
 - Confirm the approved deck version
 Email risks:
 - External recipient
+Policy flags:
+- External recipient requires confirmation
 Email status: ready for draft
 """.strip()
 
@@ -67,6 +69,18 @@ Permission check:
 - External share still needs confirmation
 Review notes:
 - Stay in draft-only mode
+Policy evidence review:
+- External sharing requires confirmation
+Confirmation queue review:
+- confirm_case_1 -> action=prepare_external_reply_draft
+Action log review:
+- step=1 | role=email_manager_agent | action=prepare_external_reply_draft
+Adapter evidence review:
+- sbox_case_email_1 via mail_draft_adapter status=awaiting_confirmation
+Safe action mode: confirmation required
+Queue status: pending confirmation
+Action log verdict: recorded
+Adapter verdict: awaiting confirmation
 Needs user confirmation: yes
 Final decision: confirm before send
 """.strip()
@@ -77,6 +91,10 @@ Final decision: confirm before send
         {},
     )
 
+    assert artifact["safe_action_mode"] == "confirm_required"
+    assert artifact["queue_status"] == "pending_confirmation"
+    assert artifact["action_log_verdict"] == "recorded"
+    assert artifact["adapter_verdict"] == "awaiting_confirmation"
     assert artifact["needs_user_confirmation"] == "yes"
     assert artifact["final_decision"] == "Needs confirmation"
     assert json.loads(normalized)["final_decision"] == "Needs confirmation"

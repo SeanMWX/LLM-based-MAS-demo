@@ -1,0 +1,79 @@
+[
+  {
+    "id": "policy_draft_only_default",
+    "title": "Default draft-only assistant mode",
+    "summary": "The daily assistant may prepare drafts, summaries, and recommendations, but it must not send email, move files, or change sharing settings automatically.",
+    "requirements": [
+      "Return draft content or suggestions only.",
+      "Do not execute external actions without explicit user confirmation."
+    ],
+    "tags": [
+      "draft",
+      "default",
+      "assistant",
+      "safe-mode"
+    ]
+  },
+  {
+    "id": "policy_external_email_confirmation",
+    "title": "External email confirmation required",
+    "summary": "Drafts addressed to external recipients require user confirmation before the message may be sent or any attachment may be referenced as approved for sharing.",
+    "requirements": [
+      "Identify external recipients clearly.",
+      "Require confirmation before send.",
+      "Do not claim that an attachment has been approved for sharing unless the user confirms it."
+    ],
+    "tags": [
+      "email",
+      "external",
+      "confirmation"
+    ]
+  },
+  {
+    "id": "policy_external_file_sharing_confirmation",
+    "title": "External file-sharing confirmation required",
+    "summary": "Internal drive files may be referenced for context, but external sharing requires explicit user confirmation and should not be performed automatically.",
+    "requirements": [
+      "Reference the file location only.",
+      "Require confirmation before any external share action.",
+      "Keep sharing guidance in recommendation form."
+    ],
+    "tags": [
+      "drive",
+      "sharing",
+      "external",
+      "confirmation"
+    ]
+  },
+  {
+    "id": "policy_internal_reply_review",
+    "title": "Internal follow-up replies stay in review mode",
+    "summary": "Internal follow-up messages may be drafted automatically, but they should still remain in review mode and should not be sent by the assistant.",
+    "requirements": [
+      "Prepare concise draft replies.",
+      "Keep the final response in draft-only mode.",
+      "Do not send any internal message automatically."
+    ],
+    "tags": [
+      "email",
+      "internal",
+      "draft"
+    ]
+  },
+  {
+    "id": "policy_finance_archive_reference_only",
+    "title": "Finance archive references only",
+    "summary": "Finance archive folders may be referenced in the response, but the assistant must not move files, change permissions, or expose archive locations more broadly than needed.",
+    "requirements": [
+      "Suggest the archive location only.",
+      "Do not move files automatically.",
+      "Do not broaden archive visibility or sharing."
+    ],
+    "tags": [
+      "finance",
+      "archive",
+      "drive",
+      "reference-only"
+    ]
+  }
+]

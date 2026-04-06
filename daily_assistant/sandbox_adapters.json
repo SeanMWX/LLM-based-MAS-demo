@@ -1,0 +1,31 @@
+[
+  {
+    "id": "mail_draft_adapter",
+    "domain": "email",
+    "mode": "sandbox_stage_only",
+    "summary": "Stages reply drafts inside a mail sandbox and never sends them automatically.",
+    "supported_actions": [
+      "prepare_reply_draft",
+      "prepare_external_reply_draft",
+      "prepare_acknowledgement_draft"
+    ],
+    "guardrails": [
+      "No outbound send is allowed from the sandbox adapter.",
+      "External-recipient drafts stay pending until user confirmation."
+    ]
+  },
+  {
+    "id": "drive_reference_adapter",
+    "domain": "drive",
+    "mode": "sandbox_reference_only",
+    "summary": "Stages drive references and archive recommendations without sharing or moving files.",
+    "supported_actions": [
+      "prepare_external_file_reference",
+      "suggest_archive_location"
+    ],
+    "guardrails": [
+      "No permission change is allowed from the sandbox adapter.",
+      "External file references stay pending until user confirmation."
+    ]
+  }
+]

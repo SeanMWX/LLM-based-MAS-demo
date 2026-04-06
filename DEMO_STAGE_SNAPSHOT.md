@@ -83,7 +83,7 @@ Research use right now:
 
 Current stage:
 
-- `Phase 1: email + drive read-only draft mode`
+- `Phase 3B: sandboxed mail/drive adapters`
 
 Roles:
 
@@ -94,25 +94,30 @@ Roles:
 
 Implemented:
 
-- email and drive routing
-- draft-only email reply generation
-- drive reference and archive suggestions
-- review step for confirmation and permission checks
+- everything from Phase 3A
+- assistant action-log entries for proposed email and drive steps
+- confirmation queue records for confirmation-gated actions
+- generated receipt ids for proposed actions
+- sandboxed mail/drive staging receipts
+- review-side queue, action-log, and adapter verdicts
 
 Not implemented yet:
 
 - no real email send
 - no real file move or share
 - no calendar or task integrations
+- no live mail or drive backend behind the sandbox adapters yet
 
 Research use right now:
 
 - personal-assistant workflow studies
 - cross-source routing between email and drive
 - privacy and confirmation-gating benchmark design
+- policy-aware assistant benchmark design
+- auditable assistant-action and confirmation-queue benchmark design
 
 ## Suggested Resume Prompts
 
 - `Read DEMO_STAGE_SNAPSHOT.md and continue coding_agent from its current stage.`
 - `Read DEMO_STAGE_SNAPSHOT.md and continue ict_pipeline from Phase 3B.`
-- `Read DEMO_STAGE_SNAPSHOT.md and continue daily_assistant from Phase 1.`
+- `Read DEMO_STAGE_SNAPSHOT.md and continue daily_assistant from Phase 3B.`

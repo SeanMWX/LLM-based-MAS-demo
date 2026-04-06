@@ -31,7 +31,7 @@ There is now a third demo in `daily_assistant/`. It models a personal productivi
 - `drive_manager_agent`
 - `assistant_review_agent`
 
-The current `daily_assistant` version is explicitly `Phase 1: email + drive read-only draft mode`.
+The current `daily_assistant` version is explicitly `Phase 3B: sandboxed mail/drive adapters`.
 
 ## Environment
 
@@ -61,6 +61,7 @@ LLM-based-MAS-demo/
 |   |-- seeding.py
 |   |-- providers.py
 |   |-- text_utils.py
+|   |-- tracing.py
 |   |-- env.py
 |   \-- models.py
 |-- coding_agent/
@@ -83,7 +84,11 @@ LLM-based-MAS-demo/
 |   |-- demo.py
 |   |-- benchmark_cases.json
 |   |-- email_threads.json
-|   \-- drive_index.json
+|   |-- drive_index.json
+|   |-- policy_rules.json
+|   |-- sandbox_adapters.json
+|   |-- PHASES.md
+|   \-- phase_status.json
 |-- tests/
 |-- mas_benchmark_demo.py
 |-- environment.yml
@@ -257,8 +262,8 @@ conda activate py12langgraph
 python .\daily_assistant\demo.py run --case all
 ```
 
-This demo is intentionally read-only and draft-only. It uses the same five-layer runtime to model a personal assistant that routes across email and drive context, drafts email replies, suggests drive actions, and finishes with a review step that enforces confirmation and permission checks.
-Its current focus is `Phase 1: email + drive read-only draft mode`, with local synthetic datasets bundled inside `daily_assistant/email_threads.json` and `daily_assistant/drive_index.json`.
+This demo is intentionally read-only and draft-only. It uses the same five-layer runtime to model a personal assistant that routes across email and drive context, cites local policy rules, drafts email replies, suggests drive actions, records assistant action-log entries, stages candidate actions through sandbox adapters, and finishes with a review step that enforces confirmation and permission checks.
+Its current focus is `Phase 3B: sandboxed mail/drive adapters`, with local synthetic datasets bundled inside `daily_assistant/email_threads.json`, `daily_assistant/drive_index.json`, `daily_assistant/policy_rules.json`, and `daily_assistant/sandbox_adapters.json`.
 
 ## Testing
 
@@ -276,7 +281,7 @@ What is covered right now:
 - simulation-mode graph execution for all ICT pipeline scenarios
 - simulation-mode graph execution for all daily-assistant scenarios
 - ICT pipeline Phase 3B vocabulary, KB matches, routing expectations, and approval-state behavior
-- daily-assistant Phase 1 routing, vocabulary normalization, and email/drive dataset matching
+- daily-assistant Phase 3B routing, policy-aware vocabulary normalization, confirmation-queue behavior, sandbox-adapter evidence, and dataset matching
 - executor action-log and receipt-evidence behavior in the ICT pipeline
 - ticket DB snapshot and approval-history behavior in the ICT pipeline
 - read-only repository snapshot collection and real test-command execution

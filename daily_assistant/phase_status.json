@@ -1,0 +1,26 @@
+{
+  "demo": "daily_assistant",
+  "current_phase": "phase3b",
+  "phases": [
+    {
+      "id": "phase1",
+      "title": "email + drive read-only draft mode",
+      "status": "implemented"
+    },
+    {
+      "id": "phase2",
+      "title": "email + drive + policy KB + confirmation gating",
+      "status": "implemented"
+    },
+    {
+      "id": "phase3a",
+      "title": "confirmation queue + assistant action log",
+      "status": "implemented"
+    },
+    {
+      "id": "phase3b",
+      "title": "sandboxed mail/drive adapters",
+      "status": "implemented"
+    }
+  ]
+}
