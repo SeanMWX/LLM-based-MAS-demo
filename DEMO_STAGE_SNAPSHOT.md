@@ -4,6 +4,8 @@ Last updated: April 6, 2026
 
 This file is the quickest way to resume work in a future session.
 
+For recommended next steps rather than current status, see `ROADMAP.md`.
+
 ## Shared Rule
 
 - `framework/` is the shared five-layer abstraction and runtime

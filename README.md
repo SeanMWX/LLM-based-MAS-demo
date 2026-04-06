@@ -51,6 +51,7 @@ LLM-based-MAS-demo/
 |-- .env.example
 |-- .gitignore
 |-- DEMO_STAGE_SNAPSHOT.md
+|-- ROADMAP.md
 |-- framework/
 |   |-- __init__.py
 |   |-- core.py
@@ -113,6 +114,9 @@ Framework rule:
 
 Stage snapshot:
 - `DEMO_STAGE_SNAPSHOT.md` records the current implementation stage of the existing demos so a future session can resume from a stable checkpoint quickly
+
+Roadmap:
+- `ROADMAP.md` records the recommended next steps for the shared framework and each demo
 
 Current `FiveLayerDemo` extension hooks include:
 - `resolve_access_mode(...)`
