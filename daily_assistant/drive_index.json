@@ -1,0 +1,43 @@
+[
+  {
+    "id": "drive_q2_sales_deck_v5",
+    "name": "Q2 Sales Deck v5",
+    "path": "/Shared/Sales/Quarterly/Q2-2026/Q2-sales-deck-v5.pptx",
+    "description": "Latest approved sales deck for Q2 2026 partner conversations.",
+    "updated_at": "2026-04-02",
+    "sharing_notes": "Internal file. Confirm before sharing externally.",
+    "tags": [
+      "q2",
+      "sales",
+      "deck",
+      "quarterly"
+    ]
+  },
+  {
+    "id": "drive_budget_review_notes",
+    "name": "Budget Review Notes",
+    "path": "/Shared/Finance/Budget/2026/budget-review-notes.docx",
+    "description": "Working notes for the current budget review cycle.",
+    "updated_at": "2026-04-05",
+    "sharing_notes": "Internal planning document. Do not forward outside the company.",
+    "tags": [
+      "budget",
+      "review",
+      "notes"
+    ]
+  },
+  {
+    "id": "drive_receipts_2026_march_folder",
+    "name": "Receipts 2026 March",
+    "path": "/Finance/Receipts/2026/03",
+    "description": "Archive folder for March 2026 expense receipts and supporting PDFs.",
+    "updated_at": "2026-04-01",
+    "sharing_notes": "Internal finance archive folder. Do not share externally.",
+    "tags": [
+      "receipts",
+      "march",
+      "finance",
+      "archive"
+    ]
+  }
+]

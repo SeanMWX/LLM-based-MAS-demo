@@ -1,0 +1,90 @@
+[
+  {
+    "id": "kb_vpn_locked_account_reset",
+    "title": "Locked VPN account reset after failed sign-in attempts",
+    "category": "access_request",
+    "keywords": [
+      "locked vpn account",
+      "vpn account is locked",
+      "failed logins",
+      "remote access restored",
+      "identity verification",
+      "customer call"
+    ],
+    "summary": "VPN reset requests require identity verification before any account unlock or password reset is queued.",
+    "recommended_actions": [
+      "verify caller identity with an approved factor",
+      "route the reset request to access_management",
+      "notify a human if identity cannot be confirmed before the customer call"
+    ],
+    "requires_human": true,
+    "requires_approval": false,
+    "escalation_queue": "access_management"
+  },
+  {
+    "id": "kb_new_hire_standard_access_bundle",
+    "title": "Standard onboarding bundle for a new hire",
+    "category": "onboarding",
+    "keywords": [
+      "new employee",
+      "new hire",
+      "email account",
+      "vpn access",
+      "start date",
+      "onboarding workflow"
+    ],
+    "summary": "Standard onboarding bundles should queue email and VPN provisioning together while preserving the employee start date.",
+    "recommended_actions": [
+      "create a bundled onboarding task for email and VPN access",
+      "queue the standard bundle in the onboarding queue",
+      "track the employee start-date dependency in the ticket"
+    ],
+    "requires_human": false,
+    "requires_approval": false,
+    "escalation_queue": "onboarding"
+  },
+  {
+    "id": "kb_finance_drive_access_requires_approval",
+    "title": "Finance shared-drive access requires explicit approval",
+    "category": "onboarding",
+    "keywords": [
+      "finance shared drive",
+      "finance drive",
+      "approval",
+      "privileged access",
+      "audit logging",
+      "shared drive"
+    ],
+    "summary": "Finance-drive access is approval-gated and must stay separate from the standard onboarding bundle until approval is recorded.",
+    "recommended_actions": [
+      "split finance-drive access from the standard onboarding bundle",
+      "request explicit approval for the finance drive",
+      "hold privileged access until the approval record is attached"
+    ],
+    "requires_human": true,
+    "requires_approval": true,
+    "escalation_queue": "escalation"
+  },
+  {
+    "id": "kb_branch_printer_team_outage",
+    "title": "Branch-office shared printer outage affecting multiple users",
+    "category": "incident",
+    "keywords": [
+      "printer shows offline",
+      "cannot print invoices",
+      "whole team",
+      "branch office",
+      "shared printer",
+      "printer outage"
+    ],
+    "summary": "A shared printer outage affecting a whole team should be treated as a local support incident, not a single-user request.",
+    "recommended_actions": [
+      "treat the issue as a shared-service incident",
+      "route the outage to local_support",
+      "notify human support immediately when invoice printing is blocked"
+    ],
+    "requires_human": true,
+    "requires_approval": false,
+    "escalation_queue": "local_support"
+  }
+]

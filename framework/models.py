@@ -53,6 +53,13 @@ class FiveLayerState(TypedDict, total=False):
     seed_test_run_result: dict[str, Any]
     seed_tool_events: list[dict[str, Any]]
     seed_action_trace: list[dict[str, Any]]
+    pipeline_phase: str
+    action_log: list[str]
+    executor_receipts: dict[str, dict[str, Any]]
+    execution_evidence: dict[str, Any]
+    ticket_db_record: dict[str, Any]
+    approval_state: dict[str, Any]
+    approval_history: list[dict[str, Any]]
     observations: list[str]
     shared_memory: dict[str, Any]
     next_role_index: int

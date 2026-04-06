@@ -22,7 +22,16 @@ There is now a second demo in `ict_pipeline/`. It models a simple enterprise ICT
 - `executor_agent`
 - `audit_agent`
 
-The current `ict_pipeline` version is explicitly `Phase 1: pure ticket system / queue`.
+The current `ict_pipeline` version is explicitly `Phase 3B: ticket + KB + executor action log + DB + human approval`.
+
+There is now a third demo in `daily_assistant/`. It models a personal productivity workflow with four agents:
+
+- `intake_router_agent`
+- `email_manager_agent`
+- `drive_manager_agent`
+- `assistant_review_agent`
+
+The current `daily_assistant` version is explicitly `Phase 1: email + drive read-only draft mode`.
 
 ## Environment
 
@@ -41,6 +50,7 @@ The framework auto-loads the repo-root `.env` file when it starts.
 LLM-based-MAS-demo/
 |-- .env.example
 |-- .gitignore
+|-- DEMO_STAGE_SNAPSHOT.md
 |-- framework/
 |   |-- __init__.py
 |   |-- core.py
@@ -59,6 +69,21 @@ LLM-based-MAS-demo/
 |   |-- demo.py
 |   |-- benchmark_cases.json
 |   \-- seeds/
+|-- ict_pipeline/
+|   |-- README.md
+|   |-- __init__.py
+|   |-- demo.py
+|   |-- kb_articles.json
+|   |-- PHASE3_CANDIDATES.md
+|   |-- phase3_candidates.json
+|   \-- benchmark_cases.json
+|-- daily_assistant/
+|   |-- README.md
+|   |-- __init__.py
+|   |-- demo.py
+|   |-- benchmark_cases.json
+|   |-- email_threads.json
+|   \-- drive_index.json
 |-- tests/
 |-- mas_benchmark_demo.py
 |-- environment.yml
@@ -73,13 +98,16 @@ LLM-based-MAS-demo/
 `framework/cli.py` holds CLI parsing and scenario rendering helpers.
 `framework/core.py` is kept as a narrow compatibility layer for legacy imports used by existing demos and tests.
 `mas_benchmark_demo.py` is kept as a compatibility entrypoint and forwards to `coding_agent/demo.py`.
-The active scenario file for this demo is `coding_agent/benchmark_cases.json`; scenarios now live under each demo directory rather than the repository root.
+Scenario files now live under each demo directory rather than the repository root, for example `coding_agent/benchmark_cases.json` and `ict_pipeline/benchmark_cases.json`.
 The tracked `.vscode/` settings file was intentionally removed; local IDE settings are now treated as user-local and ignored by Git.
 
 Framework rule:
 - `framework/` is the shared five-layer abstraction and runtime.
 - domain-specific behavior belongs in implementation folders such as `coding_agent/`
 - future demos should subclass `FiveLayerDemo` and override hooks instead of adding one-off domain logic to framework internals
+
+Stage snapshot:
+- `DEMO_STAGE_SNAPSHOT.md` records the current implementation stage of the existing demos so a future session can resume from a stable checkpoint quickly
 
 Current `FiveLayerDemo` extension hooks include:
 - `resolve_access_mode(...)`
@@ -208,6 +236,29 @@ python .\ict_pipeline\demo.py run --case vpn_access_reset
 ```
 
 This demo is intentionally non-coding. It uses the same five-layer runtime to model intake, triage, execution, and audit for enterprise ICT ticket workflows.
+Its current focus is `Phase 3B: ticket + KB + executor action log + DB + human approval`, with local knowledge-base articles bundled inside `ict_pipeline/kb_articles.json`.
+Its planned next-step candidates are documented in `ict_pipeline/PHASE3_CANDIDATES.md` and `ict_pipeline/phase3_candidates.json`.
+
+## Third Demo: `daily_assistant`
+
+Run the daily-assistant demo with:
+
+```powershell
+conda activate py12langgraph
+python .\daily_assistant\demo.py list
+python .\daily_assistant\demo.py render --case reply_with_latest_quarterly_deck
+python .\daily_assistant\demo.py run --case reply_with_latest_quarterly_deck
+```
+
+Run all daily-assistant scenarios:
+
+```powershell
+conda activate py12langgraph
+python .\daily_assistant\demo.py run --case all
+```
+
+This demo is intentionally read-only and draft-only. It uses the same five-layer runtime to model a personal assistant that routes across email and drive context, drafts email replies, suggests drive actions, and finishes with a review step that enforces confirmation and permission checks.
+Its current focus is `Phase 1: email + drive read-only draft mode`, with local synthetic datasets bundled inside `daily_assistant/email_threads.json` and `daily_assistant/drive_index.json`.
 
 ## Testing
 
@@ -220,8 +271,14 @@ python -m pytest tests -q
 
 What is covered right now:
 
+- framework hook defaults and extension points
 - simulation-mode graph execution for all coding-agent scenarios
 - simulation-mode graph execution for all ICT pipeline scenarios
+- simulation-mode graph execution for all daily-assistant scenarios
+- ICT pipeline Phase 3B vocabulary, KB matches, routing expectations, and approval-state behavior
+- daily-assistant Phase 1 routing, vocabulary normalization, and email/drive dataset matching
+- executor action-log and receipt-evidence behavior in the ICT pipeline
+- ticket DB snapshot and approval-history behavior in the ICT pipeline
 - read-only repository snapshot collection and real test-command execution
 - seeded proposal and reviewer/tester-start evaluation
 - structured output normalization and fallback parsing
@@ -261,7 +318,8 @@ Recommended responsibilities:
 After `coding_agent` is stable, create a new demo with the same pattern:
 
 1. Create a new folder such as `negotiation_agent/` or `memory_agent/`.
-2. Copy the three baseline files from `coding_agent/`: `README.md`, `demo.py`, and `benchmark_cases.json`.
+2. Copy the baseline files from an existing demo that is closest to your domain:
+   `coding_agent/` for coding workflows, `ict_pipeline/` for operational workflows, or `daily_assistant/` for read-only assistant workflows.
 3. In the new `demo.py`, subclass `FiveLayerDemo` and keep domain-specific behavior in the demo folder.
 4. Use demo-level hooks for tool sets, environment actions, brief extras, and post-role execution behavior.
 5. Replace the role list, prompts, schemas, and simulation logic with the new domain's implementation.

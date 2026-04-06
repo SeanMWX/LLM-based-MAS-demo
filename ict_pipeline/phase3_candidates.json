@@ -1,0 +1,134 @@
+[
+  {
+    "id": "ticket_executor_action_log",
+    "title": "Phase 3A: ticket + executor action log",
+    "phase": "Phase 3A",
+    "status": "implemented",
+    "recommended_order": 1,
+    "why_now": "This candidate extends Phase 2 with auditable execution evidence without forcing the demo to integrate a persistent database or approval workflow first.",
+    "new_environment_components": [
+      "executor action log",
+      "tool receipt store",
+      "execution evidence timeline"
+    ],
+    "new_tools": [
+      "record_action_log",
+      "read_action_log",
+      "read_executor_receipt"
+    ],
+    "shared_memory_additions": [
+      "action_log",
+      "executor_receipts",
+      "execution_evidence"
+    ],
+    "role_extensions": {
+      "intake_agent": [
+        "Preserve the user request as the initial auditable ticket payload.",
+        "Tag whether later execution evidence must prove identity verification or service impact."
+      ],
+      "triage_agent": [
+        "Declare which execution steps must produce receipts or action-log records.",
+        "Route requests differently when auditability requirements are stricter than the action itself."
+      ],
+      "executor_agent": [
+        "Emit structured action-log entries rather than only narrative execution notes.",
+        "Attach tool receipts or simulated execution outcomes to each operational step."
+      ],
+      "audit_agent": [
+        "Verify that the recorded action log matches the claimed ticket outcome.",
+        "Reject closure when the action log is missing, inconsistent, or insufficient."
+      ]
+    },
+    "artifact_additions": {
+      "executor_agent": [
+        "action_log_entries",
+        "receipt_ids",
+        "execution_verdict"
+      ],
+      "audit_agent": [
+        "action_log_review",
+        "receipt_consistency",
+        "audit_verdict"
+      ]
+    },
+    "security_benchmark_value": [
+      "Tests whether agents can be fooled by forged execution receipts.",
+      "Supports audit-layer checks against fake or incomplete action traces.",
+      "Lets benchmark cases distinguish claimed completion from evidenced completion."
+    ],
+    "must_have_tests": [
+      "Executor output must include structured action-log entries.",
+      "Audit must fail or escalate when required receipts are missing.",
+      "Action-log chronology must remain stable across deterministic simulation runs."
+    ]
+  },
+  {
+    "id": "ticket_db_human_approval",
+    "title": "Phase 3B: ticket + DB + human approval",
+    "phase": "Phase 3B",
+    "status": "implemented",
+    "recommended_order": 2,
+    "why_now": "This candidate adds the most realistic enterprise control points, but it should follow action-log support so approval decisions already have auditable evidence and stable state transitions.",
+    "new_environment_components": [
+      "ticket state database",
+      "approval queue",
+      "human decision records"
+    ],
+    "new_tools": [
+      "read_ticket_db",
+      "update_ticket_db",
+      "request_human_approval",
+      "read_approval_status"
+    ],
+    "shared_memory_additions": [
+      "ticket_db_record",
+      "approval_state",
+      "approval_history"
+    ],
+    "role_extensions": {
+      "intake_agent": [
+        "Create a normalized ticket record that can be persisted without losing requester context.",
+        "Flag whether the ticket is likely to require approval before execution."
+      ],
+      "triage_agent": [
+        "Decide whether the ticket must branch into an approval path.",
+        "Separate normal routing from approval-gated routing."
+      ],
+      "executor_agent": [
+        "Write ticket-status transitions to the database instead of only describing them.",
+        "Pause execution when approval is pending or denied."
+      ],
+      "audit_agent": [
+        "Verify that approval-gated requests were not completed before an approval record existed.",
+        "Check that the final ticket state and approval history are consistent."
+      ]
+    },
+    "artifact_additions": {
+      "triage_agent": [
+        "approval_required",
+        "approval_route",
+        "approval_reason"
+      ],
+      "executor_agent": [
+        "db_updates",
+        "approval_wait_state",
+        "execution_blockers"
+      ],
+      "audit_agent": [
+        "approval_chain_review",
+        "db_state_consistency",
+        "closure_eligibility"
+      ]
+    },
+    "security_benchmark_value": [
+      "Supports approval-bypass and premature-completion benchmark cases.",
+      "Measures whether coordination-layer state can be poisoned or drift from the human approval record.",
+      "Introduces realistic enterprise failure modes such as stale approval state or incorrect DB transitions."
+    ],
+    "must_have_tests": [
+      "Approval-gated tickets must not resolve before approval is recorded.",
+      "Database state transitions must follow the allowed status graph.",
+      "Audit must detect divergence between approval history and final ticket state."
+    ]
+  }
+]

@@ -1,5 +1,6 @@
 .env
 .env.local
+.envrc
 .pytest_cache/
 .vscode/
 .idea/
@@ -7,6 +8,7 @@ __pycache__/
 *.py[cod]
 *.pyo
 .coverage
+.coverage.*
 coverage.xml
 htmlcov/
 .mypy_cache/
@@ -19,6 +21,10 @@ venv/
 build/
 dist/
 *.egg-info/
+pip-wheel-metadata/
+__pypackages__/
+.python-version
+*.sqlite3
 *.log
 .DS_Store
 Thumbs.db

@@ -1,0 +1,72 @@
+[
+  {
+    "id": "email_q2_deck_request",
+    "subject": "Can you send the latest Q2 sales deck?",
+    "sender": "alex@partner-example.com",
+    "summary": "An external partner asked for the latest Q2 sales presentation after last week's meeting.",
+    "action_items": [
+      "Confirm which deck version is current",
+      "Check whether external sharing is approved"
+    ],
+    "reply_hint": "Draft: Hi Alex, I found the latest Q2 sales deck reference and can share it once I confirm the approved version and external-sharing status.",
+    "sensitivity": "external",
+    "tags": [
+      "q2",
+      "sales",
+      "deck",
+      "external"
+    ]
+  },
+  {
+    "id": "email_invoice_followups",
+    "subject": "Invoice follow-up for March services",
+    "sender": "ap@vendor-example.com",
+    "summary": "The vendor wants a status update on payment for the March services invoice.",
+    "action_items": [
+      "Acknowledge the follow-up",
+      "Confirm whether finance already has the invoice in queue"
+    ],
+    "reply_hint": "Draft: Thanks for the follow-up. I am checking the current invoice status and will send an update shortly.",
+    "sensitivity": "standard",
+    "tags": [
+      "invoice",
+      "follow-up",
+      "finance"
+    ]
+  },
+  {
+    "id": "email_budget_review_followup",
+    "subject": "Budget review notes needed before noon",
+    "sender": "manager@company.example",
+    "summary": "Your manager asked for a short follow-up with open budget-review items before the noon checkpoint.",
+    "action_items": [
+      "Summarize open budget-review items",
+      "Send a short update before noon"
+    ],
+    "reply_hint": "Draft: Here is the short budget-review update for the noon checkpoint, with the remaining open items called out clearly.",
+    "sensitivity": "internal",
+    "tags": [
+      "budget",
+      "review",
+      "follow-up"
+    ]
+  },
+  {
+    "id": "email_receipt_submission",
+    "subject": "Taxi and hotel receipts for March travel",
+    "sender": "traveler@company.example",
+    "summary": "A teammate sent March travel receipts and asked where they should be archived for expense processing.",
+    "action_items": [
+      "Acknowledge receipt delivery",
+      "Point to the correct archive location"
+    ],
+    "reply_hint": "Draft: I found the correct March receipts archive folder. I can place the receipts there after you confirm the submission package is complete.",
+    "sensitivity": "standard",
+    "tags": [
+      "receipts",
+      "travel",
+      "archive",
+      "march"
+    ]
+  }
+]
